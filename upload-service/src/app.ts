@@ -18,6 +18,11 @@ app.use(express.json());
 
 // deleteAllDirectories('vercel');
 
+const getStatusKey = (id: string): string => {
+	const statusKey = (process.env.STATUS_KEY as string || 'status') + `:${id}`;
+	return statusKey;
+}
+
 app.post("/deploy", async (req, res) => {
 	try {
 		const repoUrl: string = req.body?.repoUrl;
@@ -32,6 +37,8 @@ app.post("/deploy", async (req, res) => {
 		// write a validation for proper url
 		const id = generateUniqueID();
 		const directoryPath = path.join(__dirname, `output/${id}`);
+
+		// better way would be to set it in a persistent database
 
 		try {
 			await simpleGit().clone(repoUrl, directoryPath);
@@ -55,11 +62,15 @@ app.post("/deploy", async (req, res) => {
 
 			await publisher.LPUSH(process.env.BUILD_QUEUE_KEY ?? "build-queue", id);
 
+			
+			await publisher.SET(getStatusKey(id), 'uploaded');
+
             // Will write a cron job which cleans up disk space on a regular interval from output folder
 
 			console.log(`Pushed ID ${id} to build queue`);
 		} catch (err) {
 			console.error(err);
+			await publisher.SET(getStatusKey(id), 'failed');
 			throw err;
 		}
 
@@ -75,6 +86,44 @@ app.post("/deploy", async (req, res) => {
 		});
 	}
 });
+
+app.get('/status', async (req, res) => {
+	try {
+		const id = req.query.id;
+		if (!id || id === "") {
+			return res
+				.status(404)
+				.json({ message: "No repository provided", status: "fail" });
+		}
+
+		const statusKey = (process.env.STATUS_KEY as string || 'status') + `:${id}`;
+		let status;
+		try {
+			status = await publisher.GET(statusKey);
+			if (!status || status === "") {
+				return res
+					.status(404)
+					.json({ message: "Please check your id", status: "fail" });
+			}
+		} catch (err) {
+			console.error(err);
+			return res
+					.status(404)
+					.json({ message: "Please check your id", status: "fail" });
+		}
+
+		
+		return res.status(200).json({
+			message: "Fetched the current status",
+			status: status
+		})
+	} catch (err) {
+		return res.status(500).json({
+			message: "Request failed",
+			status: "fail",
+		});
+	}
+})
 
 const port = process.env.PORT ?? 4500;
 

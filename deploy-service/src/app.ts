@@ -49,6 +49,15 @@ async function main() {
 			}),
 		);
         console.log("Build files uploaded successfully to s3");
+
+		// better way would be to set it in a persistent database
+		const statusKey = (process.env.STATUS_KEY as string || 'status') + `:${id}`;
+		
+		try {
+			await subscriber.SET(statusKey, 'deployed');
+		} catch (error) {
+			console.error(error);
+		}
 	}
 }
 
