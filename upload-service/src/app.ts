@@ -4,19 +4,19 @@ import simpleGit from "simple-git";
 import path from "path";
 import { generateUniqueID } from "./utils/generateUniqueID";
 import { getFilesInDirectory } from "./utils/getFilesInDirectory";
-import { uploadFile } from "./utils/aws";
+import { deleteAllDirectories, uploadFile } from "./utils/aws";
 import dotenv from "dotenv";
-// import { uploadAllFiles } from "./utils/uploadAllFiles";
+import { initializeRedisClient, publisher } from "./utils/redisInitializer";
+
 dotenv.config();
+
+initializeRedisClient();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// uploadFile(
-// 	"output/lmfxr/README.md",
-// 	"/Users/sid/Coding/Development/Vercel Clone/upload-service/src/output/lmfxr/README.md",
-// );
+// deleteAllDirectories('vercel');
 
 app.post("/deploy", async (req, res) => {
 	try {
@@ -45,13 +45,23 @@ app.post("/deploy", async (req, res) => {
 		const files: string[] = [];
 		getFilesInDirectory(directoryPath, files);
 
-		// promise.all does not seem to work could be
-		// await uploadAllFiles(files);
+		try {
+			await Promise.all(
+				files.map(async (filePath) => {
+					const relativePath = path.relative(__dirname, filePath);
+					await uploadFile(relativePath, filePath);
+				}),
+			);
 
-		files.forEach(async (filePath) => {
-			const relativePath = path.relative(__dirname, filePath);
-			await uploadFile(relativePath, filePath);
-		});
+			await publisher.LPUSH(process.env.BUILD_QUEUE_KEY ?? "build-queue", id);
+
+            // Will write a cron job which cleans up disk space on a regular interval from output folder
+
+			console.log(`Pushed ID ${id} to build queue`);
+		} catch (err) {
+			console.error(err);
+			throw err;
+		}
 
 		return res.status(200).json({
 			id: id,
