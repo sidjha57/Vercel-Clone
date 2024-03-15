@@ -23,6 +23,7 @@ const getStatusKey = (id: string): string => {
 	return statusKey;
 }
 
+// this service is not required build and upload can be done in one service
 app.post("/deploy", async (req, res) => {
 	try {
 		const repoUrl: string = req.body?.repoUrl;
@@ -87,6 +88,7 @@ app.post("/deploy", async (req, res) => {
 	}
 });
 
+// we could have listened to the database 4 times a second to get the latest status
 app.get('/status', async (req, res) => {
 	try {
 		const id = req.query.id;

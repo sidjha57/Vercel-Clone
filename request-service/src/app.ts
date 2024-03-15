@@ -29,7 +29,7 @@ app.get("/*", async (req, res) => {
 		});
 
 		let type;
-
+		// using mimetype would be a better solution here
 		if (filePath.endsWith("html")) {
 			type = "text/html";
 		} else if (filePath.endsWith("css")) {
@@ -50,7 +50,7 @@ app.get("/*", async (req, res) => {
 		}
 
 		res.setHeader("Content-Type", type);
-
+		// this should be streamed we could use reverse proxy here instead
 		let data: any = Body;
 		if (type === "image/*") {
 			console.log("Sending Image");

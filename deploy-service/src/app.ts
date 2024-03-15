@@ -31,14 +31,15 @@ async function main() {
 		);
 		console.log(response);
 		const id = response?.element;
-		await downloadFromS3(`output/${id}`, __dirname);
-		await buildProject(id || "", __dirname);
+		await downloadFromS3(`output/${id}`, __dirname); // this is not really required we can stream it directly from github
+		await buildProject(id || "", __dirname); // this should be done in docker container
 		console.log("Project built successfully with id: " + id);
 
 		const files: string[] = [];
 		getFilesInDirectory(path.join(__dirname, `output/${id}/dist`), files);
 		console.log(files);
 
+		// We should keep a track of how many build files are we uploading can keep a track of number of api calls we are making
 		console.log("Uploading the build files to s3");
 		await Promise.all(
 			files.map(async (filePath) => {
