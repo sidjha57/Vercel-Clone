@@ -1,0 +1,17 @@
+{
+  "name": "build-service",
+  "version": "1.0.0",
+  "description": "copies github repository and builds it",
+  "main": "script.js",
+  "type": "module",
+  "scripts": {
+    "dev": "node script.js"
+  },
+  "author": "Siddharth Jha",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.529.1",
+    "dotenv": "^16.4.5",
+    "mime-types": "^2.1.35"
+  }
+}
