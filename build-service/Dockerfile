@@ -11,7 +11,7 @@ RUN apt-get install git -y
 WORKDIR /home/app
 
 COPY main.sh main.sh
-COPY script.js script.js
+COPY dist/index.js script.js
 COPY package*.json .
 
 RUN npm install
