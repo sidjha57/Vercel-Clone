@@ -12,12 +12,12 @@ const PROJECT_ID = process.env.PROJECT_ID;
 const scriptDirPath = path.dirname(new URL(import.meta.url).pathname);
 
 const s3Client = new S3Client({
-  region: process.env.AWS_REGION ?? 'APAC',
+  region: process.env.AWS_REGION ?? 'ap-south-1',
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? '',
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? ''
   },
-  endpoint: process.env.AWS_ENDPOINT_URL ?? ''
+  // endpoint: process.env.AWS_ENDPOINT_URL ?? ''
 });
 
 async function init (): Promise<void> {
