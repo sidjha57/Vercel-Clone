@@ -74,8 +74,10 @@
     "typescript": "^5.4.2"
   },
   "dependencies": {
+    "@aws-sdk/client-ecs": "^3.540.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.1",
+    "random-word-slugs": "^0.1.7",
     "tslog": "^4.9.2"
   }
 }
