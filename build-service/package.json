@@ -54,7 +54,7 @@
     "@jest/globals": "^29.7.0",
     "@types/jest": "^29.5.12",
     "@types/mime-types": "^2.1.4",
-    "@types/node": "^20.11.28",
+    "@types/node": "^20.12.3",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "eslint": "^8.57.0",
     "eslint-config-love": "^43.1.0",
@@ -75,6 +75,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.536.0",
     "dotenv": "^16.4.5",
+    "ioredis": "^5.3.2",
     "mime-types": "^2.1.35",
     "tslog": "^4.9.2"
   }
