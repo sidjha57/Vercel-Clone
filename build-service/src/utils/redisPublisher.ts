@@ -6,6 +6,7 @@ dotenv.config();
 let publisher: Redis;
 try {
   publisher = new Redis(process.env.REDIS_CONNECTION_STRING || '');
+  logger.info('Successfully connected to Redis');
 } catch (error) {
   logger.error(error);
 }

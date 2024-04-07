@@ -17,10 +17,10 @@ const s3Client = new S3Client({
   // endpoint: process.env.AWS_ENDPOINT_URL ?? ''
 });
 
-export const PROJECT_ID = process.env.PROJECT_ID;
+const PROJECT_ID = process.env.PROJECT_ID;
 const scriptDirPath = path.dirname(new URL(import.meta.url).pathname);
 
-async function init (): Promise<void> {
+async function init(): Promise<void> {
   logger.info('Executing script.js');
   publishLog('Build Started...');
   const outDirPath = path.join(scriptDirPath, 'output');
@@ -39,8 +39,17 @@ async function init (): Promise<void> {
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  p.on('close', async function () {
+  try {
+    await new Promise<void>((resolve, reject) => {
+      p.on('close', (code) => {
+        if (code === 0) {
+          resolve();
+        } else {
+          reject(new Error(`Child process exited with code ${code}`));
+        }
+      });
+    });
+
     logger.info('Build Completed successfully');
     publishLog('Build Completed');
 
@@ -50,9 +59,10 @@ async function init (): Promise<void> {
     });
 
     publishLog('Starting to upload');
-    for (const file of distFolderContents) {
+    // To be fixed the code files could be very large so need to limit the number of uploads in one time
+    const uploadPromises = distFolderContents.map(async (file) => {
       const filePath = path.join(distFolderPath, file as string);
-      if (fs.lstatSync(filePath).isDirectory()) continue;
+      if (fs.lstatSync(filePath).isDirectory()) return;
 
       logger.info('uploading', filePath);
       publishLog(`uploading ${file}`);
@@ -68,12 +78,16 @@ async function init (): Promise<void> {
 
       logger.info('uploaded', filePath);
       publishLog(`uploaded ${file}`);
-    }
-  });
+    });
 
-  logger.info('Done ...');
-  publishLog(`Done ...`);
+    await Promise.all(uploadPromises);
 
+    logger.info('Done ...');
+    publishLog(`Done ...`);
+  } catch (err) {
+    logger.error('An error occurred:', err);
+    publishLog(`Error: ${err}`);
+  }
 }
 
 await init();
