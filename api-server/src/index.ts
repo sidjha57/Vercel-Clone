@@ -3,6 +3,7 @@ import { logger } from '@/utils/logger';
 import { ECSClient, RunTaskCommand } from '@aws-sdk/client-ecs';
 import { generateSlug } from 'random-word-slugs'
 import dotenv from 'dotenv';
+import { initRedisSubscribe } from '@/utils/socketIO';
 dotenv.config();
 
 const app = express();
@@ -20,6 +21,8 @@ const builderConfig = {
   CLUSTER: process.env.AWS_BUILDER_CLUSTER || '',
   TASK: process.env.AWS_BUILDER_TASK || '',
 };
+
+initRedisSubscribe()
 
 app.use(express.json());
 
