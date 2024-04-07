@@ -4,10 +4,15 @@ import { ECSClient, RunTaskCommand } from '@aws-sdk/client-ecs';
 import { generateSlug } from 'random-word-slugs'
 import dotenv from 'dotenv';
 import { initRedisSubscribe } from '@/utils/socketIO';
+import cors from 'cors';
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 9000;
+
+if (process.env.NODE_ENV !== 'production')  {
+  app.use(cors());
+}
 
 const ecsClient = new ECSClient({
   region: process.env.AWS_REGION ?? 'ap-south-1',
