@@ -1,0 +1,82 @@
+{
+  "name": "base-typescript-server",
+  "version": "1.0.0",
+  "description": "use this as a base for typescript projects",
+  "main": "index.js",
+  "type": "module",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "lint-staged": {
+    "src/*.{js,jsx,ts,tsx,json,css,scss,md}": [
+      "npm run lint:fix",
+      "npm run test"
+    ]
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "scripts": {
+    "dev:tsc": "tsc --watch --preserveWatchOutput",
+    "dev:node": "node --watch dist/index.js",
+    "dev:esbuild": "npm run build --watch",
+    "dev": "esrun --watch src/index.ts",
+    "start": "node dist/index.js",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix --max-warnings=0",
+    "lint:tsc": "tsc",
+    "build:bundle": "rm -rf dist && esbuild src/index.ts --bundle --outfile=dist/index.js --format=esm --platform=node",
+    "build": "rm -rf dist && tsup src/index.ts --format=esm --platform=node",
+    "prepare": "husky install",
+    "prettier": "prettier 'src/**/*.ts'",
+    "prettier:fix": "prettier --write 'src/**/*.ts'",
+    "test": "jest --passWithNoTests",
+    "test:watch": "jest --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sidjha57/base-typescript-server.git"
+  },
+  "author": "Siddharth Jha",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sidjha57/base-typescript-server/issues"
+  },
+  "homepage": "https://github.com/sidjha57/base-typescript-server#readme",
+  "devDependencies": {
+    "@commitlint/cli": "19.2.0",
+    "@commitlint/config-conventional": "19.1.0",
+    "@jest/globals": "^29.7.0",
+    "@types/jest": "^29.5.12",
+    "@types/mime-types": "^2.1.4",
+    "@types/node": "^20.12.3",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "eslint": "^8.57.0",
+    "eslint-config-love": "^43.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-n": "^16.6.2",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-sonarjs": "^0.24.0",
+    "esrun": "^3.2.26",
+    "husky": "8.0.3",
+    "jest": "^29.7.0",
+    "lint-staged": "15.2.2",
+    "npm-run-all": "^4.1.5",
+    "prettier": "3.2.5",
+    "ts-jest": "^29.1.2",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.2"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.536.0",
+    "dotenv": "^16.4.5",
+    "ioredis": "^5.3.2",
+    "mime-types": "^2.1.35",
+    "tslog": "^4.9.2"
+  }
+}
